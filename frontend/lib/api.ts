@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const isServer = typeof window === 'undefined';
+
+const API_BASE_URL = isServer 
+  ? 'http://server:5000/api' 
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 // Helper para fazer requisições
 async function fetchAPI(endpoint: string, options?: RequestInit) {
