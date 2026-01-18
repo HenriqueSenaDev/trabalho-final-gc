@@ -1,18 +1,31 @@
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { api, type Product } from "@/lib/api"
+import { ProductCatalog } from "@/components/product-catalog"
+import { api, type Product, type Category, type PaginationInfo } from "@/lib/api"
 
 export default async function CatalogPage() {
-  let products: Product[] = [];
+  let products: Product[] = []
+  let categories: Category[] = []
+  let pagination: PaginationInfo = {
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  }
 
   try {
-    const response = await api.products.getAll()
-    products = response.data
+    const [productsResponse, categoriesResponse] = await Promise.all([
+      api.products.getAll(),
+      api.categories.getAll(),
+    ])
+    products = productsResponse.data
+    pagination = productsResponse.pagination
+    categories = categoriesResponse
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching data:', error)
   }
 
   return (
@@ -52,56 +65,12 @@ export default async function CatalogPage() {
 
       <Separator className="bg-gray-100" />
 
-      {/* Products Grid */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-10">
-          <h3 className="text-sm uppercase tracking-widest text-gray-400">
-            Todos os Produtos
-          </h3>
-          <span className="text-sm text-gray-400">
-            {products.length} {products.length === 1 ? 'item' : 'itens'}
-          </span>
-        </div>
-
-        {products.length === 0 ? (
-          <div className="text-center py-24">
-            <p className="text-gray-400 text-base">Nenhum produto disponível no momento.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <Card
-                key={product.id}
-                className="group border-0 shadow-none bg-transparent rounded-none py-0 gap-0"
-              >
-                <div className="aspect-square bg-gray-50 relative overflow-hidden mb-4">
-                  <img
-                    src={product.imageUrl || "/placeholder.svg"}
-                    alt={product.name}
-                    className="object-cover w-full h-full group-hover:scale-102 transition-transform duration-500 ease-out"
-                  />
-                </div>
-                <CardContent className="p-0 space-y-2">
-                  {product.category && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-gray-100 text-gray-500 hover:bg-gray-100 font-normal text-[10px] uppercase tracking-wider rounded-sm"
-                    >
-                      {product.category.name}
-                    </Badge>
-                  )}
-                  <h3 className="font-medium text-gray-900 text-base tracking-tight">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    R$ {product.price.toFixed(2).replace('.', ',')}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* Products Catalog with Filters */}
+      <ProductCatalog
+        initialProducts={products}
+        initialPagination={pagination}
+        categories={categories}
+      />
 
       {/* Footer - Minimal */}
       <footer className="border-t border-gray-100 py-10 mt-16">
