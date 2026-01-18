@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { ProductCatalog } from "@/components/product-catalog"
+import { CartDrawer } from "@/components/cart-drawer"
 import { api, type Product, type Category, type PaginationInfo } from "@/lib/api"
 
 export default async function CatalogPage() {
@@ -36,15 +37,18 @@ export default async function CatalogPage() {
           <h1 className="text-xl font-medium tracking-tight text-gray-900">
             STORE
           </h1>
-          <Link href="/admin/login">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-500 hover:text-gray-900 hover:bg-gray-50 text-xs uppercase tracking-wider font-medium"
-            >
-              Admin
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <CartDrawer />
+            <Link href="/admin/login">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-gray-900 hover:bg-gray-50 text-xs uppercase tracking-wider font-medium"
+              >
+                Admin
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 

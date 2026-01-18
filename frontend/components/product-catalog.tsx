@@ -1,10 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
+import { ShoppingCart } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CatalogFilters } from '@/components/catalog-filters'
+import { useCart } from '@/hooks/use-cart'
 import {
   api,
   type Product,
@@ -41,6 +44,7 @@ export function ProductCatalog({
   const [pagination, setPagination] = useState<PaginationInfo>(initialPagination)
   const [filters, setFilters] = useState<ProductFilters>({})
   const [isLoading, setIsLoading] = useState(false)
+  const { addItem } = useCart()
 
   const fetchProducts = useCallback(async (currentFilters: ProductFilters) => {
     setIsLoading(true)
@@ -115,6 +119,14 @@ export function ProductCatalog({
                   alt={product.name}
                   className="object-cover w-full h-full group-hover:scale-102 transition-transform duration-500 ease-out"
                 />
+                <Button
+                  size="sm"
+                  className="absolute bottom-3 right-3 bg-white/90 hover:bg-white text-gray-900 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  onClick={() => addItem(product)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Adicionar
+                </Button>
               </div>
               <CardContent className="p-0 space-y-2">
                 {product.category && (
