@@ -8,6 +8,7 @@ vi.mock('../src/lib/prisma.js', () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
     category: {
       findUnique: vi.fn(),
@@ -31,14 +32,37 @@ describe('ProductController', () => {
     vi.clearAllMocks();
   });
 
-  it('getAll - returns products', async () => {
-    (prisma as any).product.findMany.mockResolvedValue([{ id: 'p1', name: 'Prod' }]);
+  // it('getAll - returns products', async () => {
+  //   (prisma as any).product.findMany.mockResolvedValue([{ id: 'p1', name: 'Prod' }]);
+
+  //   const res = mockResponse();
+  //   await ProductController.getAll({} as any, res);
+
+  //   expect(res.json).toHaveBeenCalledWith([{ id: 'p1', name: 'Prod' }]);
+  // });
+
+  it('getAll - returns products with pagination', async () => {
+    (prisma as any).product.count.mockResolvedValue(1);
+    (prisma as any).product.findMany.mockResolvedValue([
+      { id: 'p1', name: 'Prod' }
+    ]);
 
     const res = mockResponse();
-    await ProductController.getAll({} as any, res);
+    await ProductController.getAll({ query: {} } as any, res);
 
-    expect(res.json).toHaveBeenCalledWith([{ id: 'p1', name: 'Prod' }]);
+    expect(res.json).toHaveBeenCalledWith({
+      data: [{ id: 'p1', name: 'Prod' }],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
   });
+
 
   it('getById - product not found returns 404', async () => {
     (prisma as any).product.findUnique.mockResolvedValue(null);
