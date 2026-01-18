@@ -8,7 +8,8 @@ export default async function CatalogPage() {
   let products: Product[] = [];
 
   try {
-    products = await api.products.getAll();
+    const response = await api.products.getAll()
+    products = response.data
   } catch (error) {
     console.error('Error fetching products:', error);
   }
@@ -57,7 +58,7 @@ export default async function CatalogPage() {
                 <CardContent className="p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-medium text-foreground text-lg">{product.name}</h3>
-                    <p className="text-lg font-semibold text-primary whitespace-nowrap">${product.price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-primary whitespace-nowrap">R${product.price.toFixed(2)}</p>
                   </div>
                   {product.category && <p className="text-sm text-muted-foreground">{product.category.name}</p>}
                 </CardContent>

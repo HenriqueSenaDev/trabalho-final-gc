@@ -58,12 +58,48 @@ export interface UpdateProductInput {
   categoryId?: string
 }
 
+// Tipos para consumo da API (para a Pessoa B usar nos filtros)
+export interface ProductFilters {
+  search?: string
+  categoryId?: string
+  minPrice?: number
+  maxPrice?: number
+  page?: number
+  limit?: number
+}
+
+export interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+export interface ProductsResponse {
+  data: Product[]
+  pagination: PaginationInfo
+}
+
 // Products API
 export const api = {
   products: {
-    // GET /api/products
-    getAll: async (): Promise<Product[]> => {
-      return fetchAPI('/products')
+    // GET /api/products com suporte a filtros e paginação
+    // Query params opcionais: search, categoryId, minPrice, maxPrice, page, limit
+    getAll: async (filters?: ProductFilters): Promise<ProductsResponse> => {
+      const params = new URLSearchParams()
+      
+      if (filters?.search) params.append('search', filters.search)
+      if (filters?.categoryId) params.append('categoryId', filters.categoryId)
+      if (filters?.minPrice !== undefined) params.append('minPrice', filters.minPrice.toString())
+      if (filters?.maxPrice !== undefined) params.append('maxPrice', filters.maxPrice.toString())
+      if (filters?.page) params.append('page', filters.page.toString())
+      if (filters?.limit) params.append('limit', filters.limit.toString())
+      
+      const queryString = params.toString()
+      const endpoint = queryString ? `/products?${queryString}` : '/products'
+      return fetchAPI(endpoint)
     },
 
     // GET /api/products/:id
