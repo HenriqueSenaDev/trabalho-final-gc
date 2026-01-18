@@ -31,10 +31,6 @@ describe('ProductController', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  // it('getAll - returns products', async () => {
-  //   (prisma as any).product.findMany.mockResolvedValue([{ id: 'p1', name: 'Prod' }]);
-
   //   const res = mockResponse();
   //   await ProductController.getAll({} as any, res);
 
