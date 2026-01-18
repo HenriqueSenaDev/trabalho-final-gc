@@ -1,15 +1,14 @@
 services:
   db:
     image: postgres:17
-    container_name: trabalho-final-gc-db
+    container_name: trabalho-final-db
+    restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       POSTGRES_DB: trabalho-final-db
-    ports:
-      - "5432:5432"
     volumes:
-      - trabalho-final-gc-db:/var/lib/postgresql/data
+      - pgdata_prod:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d trabalho-final-db"]
       interval: 5s
@@ -17,8 +16,9 @@ services:
       retries: 5
 
   server:
-    build: ./server
-    container_name: trabalho-final-gc-server
+    image: paulo1808/trabalho-final-gc-server:latest
+    container_name: trabalho-final-server
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -26,20 +26,27 @@ services:
       PORT: 5000
       DATABASE_URL: postgres://root:root@db:5432/trabalho-final-db
       FRONTEND_URL: http://localhost:3001
-      NODE_ENV: development
+      NODE_ENV: production
     ports:
       - "5000:5000"
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   frontend:
-    build: ./frontend
-    container_name: trabalho-final-gc-frontend
+    image: paulo1808/trabalho-final-gc-frontend:latest
+    container_name: trabalho-final-frontend
+    restart: always
     depends_on:
       - server
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:5000/api
-      WATCHPACK_POLLING: "true"
     ports:
       - "3001:3000"
 
 volumes:
-  trabalho-final-gc-db:
+  pgdata_prod:
