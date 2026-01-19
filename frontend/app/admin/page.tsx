@@ -45,7 +45,7 @@ export default function AdminPage() {
         api.products.getAll(),
         api.categories.getAll(),
       ])
-      setProducts(productsData)
+      setProducts(productsData.data)
       setCategories(categoriesData)
     } catch (error) {
       console.error('Error loading data:', error)

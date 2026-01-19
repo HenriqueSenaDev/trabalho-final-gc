@@ -1,18 +1,26 @@
+"use client";
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { api, type Product } from "@/lib/api"
+import { useEffect, useState } from "react";
 
-export default async function CatalogPage() {
-  // Buscar produtos do servidor
-  let products: Product[] = [];
+export default function CatalogPage() {
+  const [products, setProducts] = useState<Product[]>([]);
 
-  try {
-    const response = await api.products.getAll()
-    products = response.data
-  } catch (error) {
-    console.error('Error fetching products:', error);
+  const loadProducts = async () => {
+    try {
+      const response = await api.products.getAll()
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
   }
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
