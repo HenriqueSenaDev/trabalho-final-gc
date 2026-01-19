@@ -1,31 +1,4 @@
-const isServer = typeof window === 'undefined';
-
-const API_BASE_URL = isServer 
-  ? 'http://server:5000/api' 
-  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-// Helper para fazer requisições
-async function fetchAPI(endpoint: string, options?: RequestInit) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    ...options,
-  })
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }))
-    throw new Error(error.error || 'Request failed')
-  }
-
-  // 204 No Content não tem body
-  if (response.status === 204) {
-    return null
-  }
-
-  return response.json()
-}
+import { fetchAPI } from "./fetcher";
 
 // Types para a API
 export interface Category {
@@ -89,14 +62,14 @@ export const api = {
     // Query params opcionais: search, categoryId, minPrice, maxPrice, page, limit
     getAll: async (filters?: ProductFilters): Promise<ProductsResponse> => {
       const params = new URLSearchParams()
-      
+
       if (filters?.search) params.append('search', filters.search)
       if (filters?.categoryId) params.append('categoryId', filters.categoryId)
       if (filters?.minPrice !== undefined) params.append('minPrice', filters.minPrice.toString())
       if (filters?.maxPrice !== undefined) params.append('maxPrice', filters.maxPrice.toString())
       if (filters?.page) params.append('page', filters.page.toString())
       if (filters?.limit) params.append('limit', filters.limit.toString())
-      
+
       const queryString = params.toString()
       const endpoint = queryString ? `/products?${queryString}` : '/products'
       return fetchAPI(endpoint)

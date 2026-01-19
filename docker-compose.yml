@@ -36,7 +36,7 @@ services:
     depends_on:
       - server
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+      API_URL: http://localhost:5000/api
       WATCHPACK_POLLING: "true"
     ports:
       - "3001:3000"
